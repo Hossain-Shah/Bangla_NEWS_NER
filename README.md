@@ -27,3 +27,4 @@ pip install -r requirements.txt
 * news_entity_extraction_deploy_using_self_trained_custom_model.py script for web deployment and performance testing for trained model file.
 * news_entity_extraction_deploy_using_pretrained_model.py script for web deployment and performance testing for pre-trained model file. 
 
+## N.T.B: Custom trained model files could not be shared for large file system, LFS dependency. 
