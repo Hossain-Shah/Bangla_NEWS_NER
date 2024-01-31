@@ -92,7 +92,7 @@ if __name__ == "__main__":
     print(articles)
 
     # Provide path to the text file containing entities
-    entities_file = "/content/drive/MyDrive/Colab_Notebooks/annotations.txt"
+    entities_file = "Bangla_NEWS_NER/data/annotations.txt"
 
     # Step 2: Preparing the Dataset
     dataset = prepare_dataset(articles, entities_file)
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     else:
       print(f"No entities found for {formatted_date}")
     # Save the trained model
-    trained_model.to_disk("/content/drive/MyDrive/Colab_Notebooks/custom_model.spacy")
+    trained_model.to_disk("Bangla_NEWS_NER/models/custom_model.spacy")

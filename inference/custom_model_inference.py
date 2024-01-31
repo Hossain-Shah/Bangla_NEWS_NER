@@ -1,8 +1,13 @@
-import streamlit as st
+# Required libraries
 from bs4 import BeautifulSoup
 import requests
-from transformers import BertTokenizerFast, BertForTokenClassification
+from transformers import BertTokenizerFast, BertConfig, BertForTokenClassification
 from transformers import pipeline
+import datetime
+
+#ignore warnings
+import warnings
+warnings.filterwarnings('ignore')
 
 # Sample URL for Bangla news scraping
 NEWS_URL = "https://www.prothomalony.com/"
@@ -27,14 +32,14 @@ def scrape_bangla_news(date):
         return headlines, articles
 
     except Exception as e:
-        st.error(f"Error occurred during scraping: {e}")
+        print("Error occurred during scraping:", e)
         return [], []
 
 # Sample function for named entity recognition in Bangla
 def perform_bangla_ner(text):
     try:
-        tokenizer = BertTokenizerFast.from_pretrained("/content/drive/MyDrive/Colab_Notebooks/custom_model_transformers")
-        model = BertForTokenClassification.from_pretrained("/content/drive/MyDrive/Colab_Notebooks/custom_model_transformers")
+        tokenizer = BertTokenizerFast.from_pretrained("Bangla_NEWS_NER/models/custom_model_transformers")
+        model = BertForTokenClassification.from_pretrained("Bangla_NEWS_NER/models/custom_model_transformers")
         nlp = pipeline("ner", model=model, tokenizer=tokenizer)
 
         # Process the text with the NER pipeline
@@ -47,29 +52,34 @@ def perform_bangla_ner(text):
         return entity_texts
 
     except Exception as e:
-        st.error(f"Error occurred during NER: {e}")
+        print("Error occurred during NER:", e)
         return []
 
+# Sample function to toggle date selection from the backend
+def select_date():
+    # Assuming you have a backend function to retrieve the desired date
+    # This function returns the selected date
+    selected_date = "2024-01-27"  # Example date
+
+    return selected_date
+
+# Main function to orchestrate the process
 def main():
-    st.title("Bangla News Entity Recognition")
+    try:
+        # Toggle date selection
+        selected_date = select_date()
 
-    # Date input
-    date = st.text_input("Enter Date (YYYY-MM-DD):")
+        # Scrape Bangla news headlines and articles
+        headlines, articles = scrape_bangla_news(selected_date)
 
-    if st.button("Submit"):
-        if date:
-            headlines, articles = scrape_bangla_news(date)
+        # Perform named entity recognition on the articles
+        for article in articles:
+            named_entities = perform_bangla_ner(article)
+            print("Named Entities:", named_entities)
 
-            if headlines:
-                st.subheader("Headlines:")
-                for headline in headlines:
-                    st.write(headline)
+    except Exception as e:
+        print("Error occurred:", e)
 
-            if articles:
-                st.subheader("Named Entities:")
-                for article in articles:
-                    named_entities = perform_bangla_ner(article)
-                    st.write(named_entities)
-
+# Entry point
 if __name__ == "__main__":
     main()

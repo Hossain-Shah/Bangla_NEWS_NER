@@ -1,12 +1,13 @@
+# Required libraries
 from bs4 import BeautifulSoup
 import requests
-from transformers import AutoTokenizer, AutoModelForTokenClassification, BertTokenizerFast, BertConfig, BertForTokenClassification
+from transformers import BertTokenizerFast, BertConfig, BertForTokenClassification
 from transformers import pipeline
+import datetime
 
-# Load the tokenizer and model from Hugging Face Transformers
-tokenizer = BertTokenizerFast.from_pretrained("saiful9379/BanglaNER_BERT")
-model = BertForTokenClassification.from_pretrained("saiful9379/BanglaNER_BERT")
-nlp = pipeline("ner", model=model, tokenizer=tokenizer)
+#ignore warnings
+import warnings
+warnings.filterwarnings('ignore')
 
 # Sample URL for Bangla news scraping
 NEWS_URL = "https://www.prothomalony.com/"
@@ -37,22 +38,30 @@ def scrape_bangla_news(date):
 # Sample function for named entity recognition in Bangla
 def perform_bangla_ner(text):
     try:
+        tokenizer = BertTokenizerFast.from_pretrained("saiful9379/BanglaNER_BERT")
+        model = BertForTokenClassification.from_pretrained("saiful9379/BanglaNER_BERT")
+        nlp = pipeline("ner", model=model, tokenizer=tokenizer)
+
         # Process the text with the NER pipeline
         named_entities = nlp(text)
 
-        # Extract entity spans
-        entity_spans = []
-        for entity in named_entities:
-            start_idx = text.find(entity["word"], entity["start"])
-            end_idx = start_idx + len(entity["word"])
-            entity_spans.append((start_idx, end_idx, entity["entity"]))
+        # Extract entity text only
+        entity_texts = [entity['word'] for entity in named_entities]
 
-        # Return entity spans
-        return entity_spans
+        # Return named entity texts
+        return entity_texts
 
     except Exception as e:
         print("Error occurred during NER:", e)
         return []
+
+# Sample function to toggle date selection from the backend
+def select_date():
+    # Assuming you have a backend function to retrieve the desired date
+    # This function returns the selected date
+    selected_date = "2024-01-27"  # Example date
+
+    return selected_date
 
 # Main function to orchestrate the process
 def main():
@@ -63,26 +72,13 @@ def main():
         # Scrape Bangla news headlines and articles
         headlines, articles = scrape_bangla_news(selected_date)
 
-        # Save entity spans to a text file
-        with open("/content/drive/MyDrive/Colab_Notebooks/annotations.txt", "w", encoding="utf-8") as file:
-            for article in articles:
-                entity_spans = perform_bangla_ner(article)
-                print(entity_spans)
-                for start, end, entity in entity_spans:
-                    file.write(f"{start},{end},{entity}\n")
-
-        print("Entity spans saved to annotations.txt")
+        # Perform named entity recognition on the articles
+        for article in articles:
+            named_entities = perform_bangla_ner(article)
+            print("Named Entities:", named_entities)
 
     except Exception as e:
         print("Error occurred:", e)
-
-# Sample function to toggle date selection from the backend
-def select_date():
-    # Assuming you have a backend function to retrieve the desired date
-    # This function returns the selected date
-    selected_date = "2024-01-29"  # Example date
-
-    return selected_date
 
 # Entry point
 if __name__ == "__main__":
