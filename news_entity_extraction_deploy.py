@@ -1,7 +1,7 @@
 import streamlit as st
 from bs4 import BeautifulSoup
 import requests
-from transformers import AutoTokenizer, AutoModelForTokenClassification
+from transformers import BertTokenizerFast, BertForTokenClassification
 from transformers import pipeline
 
 # Sample URL for Bangla news scraping
@@ -33,8 +33,8 @@ def scrape_bangla_news(date):
 # Sample function for named entity recognition in Bangla
 def perform_bangla_ner(text):
     try:
-        tokenizer = AutoTokenizer.from_pretrained("csebuetnlp/banglabert")
-        model = AutoModelForTokenClassification.from_pretrained("csebuetnlp/banglabert")
+        tokenizer = BertTokenizerFast.from_pretrained("saiful9379/BanglaNER_BERT")
+        model = BertForTokenClassification.from_pretrained("saiful9379/BanglaNER_BERT")
         nlp = pipeline("ner", model=model, tokenizer=tokenizer)
 
         # Process the text with the NER pipeline
